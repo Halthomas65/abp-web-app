@@ -1,15 +1,25 @@
 ﻿{
   "applications": {
-    "AbpSolution1.Web": {
+    "Acme.BookStore.HttpApi.Host": {
       "type": "dotnet-project",
-      "launchUrl": "https://localhost:44306",
-      "path": "../../../src/AbpSolution1.Web/AbpSolution1.Web.csproj",
-      "kubernetesService": ".*-web$",
+      "launchUrl": "https://localhost:44390",
+      "path": "../../../src/Acme.BookStore.HttpApi.Host/Acme.BookStore.HttpApi.Host.csproj",
+      "kubernetesService": ".*-httpapihost$",
       "healthCheckEndpoint": "/health-status",
       "healthUiEndpoint": "/health-ui",
       "execution": {
-        "order": 2
+        "order": 4
       }
+    },
+    "Acme.BookStore.Angular": {
+      "type": "cli",
+      "workingDirectory": "../../../angular",
+      "startCommand": "./start.ps1",
+      "launchUrl": "http://localhost:4200",
+      "kubernetesService": ".*-angular$",
+      "execution": {
+        "order": 2
+      }    
     }
   }
 }
