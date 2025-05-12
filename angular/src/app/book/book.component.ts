@@ -1,11 +1,23 @@
-import { Component } from '@angular/core';
+import { ListService, PagedResultDto } from '@abp/ng.core';
+import { Component, OnInit } from '@angular/core';
+import { BookService, BookDto } from '@proxy/books';
 
 @Component({
   selector: 'app-book',
-  standalone: false,
   templateUrl: './book.component.html',
-  styleUrl: './book.component.scss'
+  styleUrls: ['./book.component.scss'],
+  providers: [ListService],
 })
-export class BookComponent {
+export class BookComponent implements OnInit {
+  book = { items: [], totalCount: 0 } as PagedResultDto<BookDto>;
 
+  constructor(public readonly list: ListService, private bookService: BookService) { }
+
+  ngOnInit() {
+    const bookStreamCreator = (query) => this.bookService.getList(query);
+
+    this.list.hookToQuery(bookStreamCreator).subscribe((response) => {
+      this.book = response;
+    });
+  }
 }
