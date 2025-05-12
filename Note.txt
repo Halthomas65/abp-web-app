@@ -1,0 +1,2 @@
+- Bảng Menu ko hiện 
+- ko có navigator từ home về trang books 

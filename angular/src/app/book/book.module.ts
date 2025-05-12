@@ -1,15 +1,13 @@
 import { NgModule } from '@angular/core';
 import { SharedModule } from '../shared/shared.module';
+import { BookRoutingModule } from './book-routing.module';
 import { BookComponent } from './book.component';
-import { LocalizationModule } from '@abp/ng.core';
-import { BookRoutingModule } from 'book-routing.module';
 
 @NgModule({
-  declarations: [],
+  declarations: [BookComponent],
   imports: [
     BookRoutingModule,
-    BookComponent,
-
+    SharedModule
   ]
 })
 export class BookModule { }
