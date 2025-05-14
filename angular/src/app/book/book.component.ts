@@ -1,35 +1,45 @@
 import { ListService, PagedResultDto } from '@abp/ng.core';
 import { Component, OnInit } from '@angular/core';
-import { BookService, BookDto } from '@proxy/books';
+import { BookService, BookDto, bookTypeOptions } from '@proxy/books';
 import { CoreModule } from '@abp/ng.core';
 import { ThemeSharedModule } from '@abp/ng.theme.shared';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
-
+import { NgbDatepickerModule, NgbDateNativeAdapter, NgbDateAdapter } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-book',
   templateUrl: './book.component.html',
   styleUrls: ['./book.component.scss'],
   standalone: true,
-  providers: [ListService], imports: [
+  providers: [
+    ListService,
+    { provide: NgbDateAdapter, useClass: NgbDateNativeAdapter }
+  ],
+  imports: [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
     CoreModule,
     NgxDatatableModule,
-    ThemeSharedModule
+    ThemeSharedModule,
+    NgbDatepickerModule
   ]
 })
 export class BookComponent implements OnInit {
   book: PagedResultDto<BookDto> = { items: [], totalCount: 0 };
 
+  form: FormGroup;
+
+  bookTypes = bookTypeOptions;
+
   isModalOpen = false;
 
   constructor(
     public readonly list: ListService,
-    private readonly bookService: BookService
+    private readonly bookService: BookService,
+    private fb: FormBuilder
   ) { }
 
   ngOnInit(): void {
@@ -37,7 +47,29 @@ export class BookComponent implements OnInit {
   }
 
   createBook(): void {
+    this.buildForm();
     this.isModalOpen = true;
+  }
+
+  buildForm(): void {
+    this.form = this.fb.group({
+      name: ['', [Validators.required]],
+      type: [null, [Validators.required]],
+      publishDate: [null, [Validators.required]],
+      price: [null, [Validators.required]],
+    });
+  }
+
+  save(): void {
+    if (this.form.invalid) {
+      return;
+    }
+
+    this.bookService.create(this.form.value).subscribe(() => {
+      this.isModalOpen = false;
+      this.form.reset();
+      this.list.get();
+    });
   }
 
   private initializeBookList(): void {

@@ -90,3 +90,13 @@
         padding: 1.5rem;
     }
 }
+
+:host ::ng-deep ngb-datepicker {
+  border: 1px solid rgba(0,0,0,.125);
+  border-radius: 0.25rem;
+  background-color: #fff;
+}
+
+.input-group .calendar {
+  z-index: 0;
+}
