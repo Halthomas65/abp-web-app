@@ -1,19 +1,31 @@
 import { ListService, PagedResultDto } from '@abp/ng.core';
 import { Component, OnInit } from '@angular/core';
 import { BookService, BookDto } from '@proxy/books';
-import { LocalizationModule } from '@abp/ng.core';
+import { CoreModule } from '@abp/ng.core';
+import { ThemeSharedModule } from '@abp/ng.theme.shared';
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
+
 
 @Component({
   selector: 'app-book',
   templateUrl: './book.component.html',
   styleUrls: ['./book.component.scss'],
   standalone: true,
-  providers: [ListService],
-  imports: [LocalizationModule, NgxDatatableModule], // Import LocalizationModule and NgxDatatableModule here
+  providers: [ListService], imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    CoreModule,
+    NgxDatatableModule,
+    ThemeSharedModule
+  ]
 })
 export class BookComponent implements OnInit {
   book: PagedResultDto<BookDto> = { items: [], totalCount: 0 };
+
+  isModalOpen = false;
 
   constructor(
     public readonly list: ListService,
@@ -22,6 +34,10 @@ export class BookComponent implements OnInit {
 
   ngOnInit(): void {
     this.initializeBookList();
+  }
+
+  createBook(): void {
+    this.isModalOpen = true;
   }
 
   private initializeBookList(): void {
