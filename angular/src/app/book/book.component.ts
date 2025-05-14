@@ -6,7 +6,9 @@ import { ThemeSharedModule } from '@abp/ng.theme.shared';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
-import { NgbDatepickerModule, NgbDateNativeAdapter, NgbDateAdapter } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDatepickerModule, NgbDateNativeAdapter, NgbDateAdapter, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
+import { ConfirmationService, Confirmation } from '@abp/ng.theme.shared';
+
 
 @Component({
   selector: 'app-book',
@@ -24,11 +26,14 @@ import { NgbDatepickerModule, NgbDateNativeAdapter, NgbDateAdapter } from '@ng-b
     CoreModule,
     NgxDatatableModule,
     ThemeSharedModule,
-    NgbDatepickerModule
+    NgbDatepickerModule,
+    NgbDropdownModule
   ]
 })
 export class BookComponent implements OnInit {
   book: PagedResultDto<BookDto> = { items: [], totalCount: 0 };
+
+  selectedBook = {} as BookDto;
 
   form: FormGroup;
 
@@ -39,16 +44,12 @@ export class BookComponent implements OnInit {
   constructor(
     public readonly list: ListService,
     private readonly bookService: BookService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private confirmation: ConfirmationService // inject the ConfirmationService
   ) { }
 
   ngOnInit(): void {
     this.initializeBookList();
-  }
-
-  createBook(): void {
-    this.buildForm();
-    this.isModalOpen = true;
   }
 
   buildForm(): void {
@@ -60,12 +61,39 @@ export class BookComponent implements OnInit {
     });
   }
 
-  save(): void {
+  createBook(): void {
+    this.selectedBook = {} as BookDto;
+    this.buildForm();
+    this.isModalOpen = true;
+  }
+
+  // Add editBook method
+  editBook(id: string) {
+    this.bookService.get(id).subscribe((book) => {
+      this.selectedBook = book;
+      this.buildForm();
+      this.isModalOpen = true;
+    });
+  }
+
+  delete(id: string) {
+    this.confirmation.warn('::AreYouSureToDelete', '::AreYouSure').subscribe((status) => {
+      if (status === Confirmation.Status.confirm) {
+        this.bookService.delete(id).subscribe(() => this.list.get());
+      }
+    });
+  }
+
+  save() {
     if (this.form.invalid) {
       return;
     }
 
-    this.bookService.create(this.form.value).subscribe(() => {
+    const request = this.selectedBook.id
+      ? this.bookService.update(this.selectedBook.id, this.form.value)
+      : this.bookService.create(this.form.value);
+
+    request.subscribe(() => {
       this.isModalOpen = false;
       this.form.reset();
       this.list.get();

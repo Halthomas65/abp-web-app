@@ -20,12 +20,32 @@
   <div class="card-body">
     <ngx-datatable [rows]="book.items" [count]="book.totalCount" [footerHeight]="50" [headerHeight]="50"
       [rowHeight]="'auto'" [scrollbarH]="true" class="material striped">
+
+      <ngx-datatable-column [name]="'::Actions' | abpLocalization" [maxWidth]="150" [sortable]="false">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          <div ngbDropdown container="body" class="d-inline-block">
+            <button class="btn btn-primary btn-sm dropdown-toggle" 
+              ngbDropdownToggle>
+              <i class="fa fa-cog me-1"></i>{{ '::Actions' | abpLocalization }}
+            </button>
+            <div ngbDropdownMenu>
+              <button ngbDropdownItem (click)="editBook(row.id)">
+                {{ '::Edit' | abpLocalization }}
+              </button>
+              <button ngbDropdownItem (click)="delete(row.id)">
+                {{ '::Delete' | abpLocalization }}
+              </button>
+            </div>
+          </div>
+        </ng-template>
+      </ngx-datatable-column>
+
       <ngx-datatable-column [name]="'::Name' | abpLocalization" prop="name" [width]="200">
         {{ '::Name' | abpLocalization }}
       </ngx-datatable-column>
       <ngx-datatable-column [name]="'::Type' | abpLocalization" prop="type">
         <ng-template let-row="row" ngx-datatable-cell-template>
-          <span class="badge bg-light text-dark">
+          <span class="badge bg-dark text-light">
             {{ '::Enum:BookType.' + row.type | abpLocalization }}
           </span>
         </ng-template>
@@ -50,7 +70,7 @@
 
 <abp-modal [(visible)]="isModalOpen">
   <ng-template #abpHeader>
-    <h3>{{ '::NewBook' | abpLocalization }}</h3>
+    <h3>{{ (selectedBook.id ? '::Edit' : '::NewBook' ) | abpLocalization }}</h3>
   </ng-template>
 
   <ng-template #abpBody>
