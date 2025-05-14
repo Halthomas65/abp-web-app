@@ -13,16 +13,27 @@ import { NgxDatatableModule } from '@swimlane/ngx-datatable';
   imports: [LocalizationModule, NgxDatatableModule], // Import LocalizationModule and NgxDatatableModule here
 })
 export class BookComponent implements OnInit {
-  book = { items: [], totalCount: 0 } as PagedResultDto<BookDto>;
+  book: PagedResultDto<BookDto> = { items: [], totalCount: 0 };
 
-  constructor(public readonly list: ListService, private bookService: BookService) { }
+  constructor(
+    public readonly list: ListService,
+    private readonly bookService: BookService
+  ) { }
 
-  ngOnInit() {
+  ngOnInit(): void {
+    this.initializeBookList();
+  }
+
+  private initializeBookList(): void {
     const bookStreamCreator = (query) => this.bookService.getList(query);
-
-    this.list.hookToQuery(bookStreamCreator).subscribe((response) => {
-      this.book = response;
-      console.log(this.book.items); // Debug: Check if data is being populated
+    this.list.hookToQuery(bookStreamCreator).subscribe({
+      next: (response) => {
+        this.book = response;
+        console.debug('Books loaded:', this.book.items); // Debug: Check if data is being populated
+      },
+      error: (err) => {
+        console.error('Failed to load books:', err); // Handle errors gracefully
+      },
     });
   }
 }
