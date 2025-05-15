@@ -21,7 +21,7 @@ function configureRoutes(routes: RoutesService) {
         iconClass: 'fas fa-book',
         order: 2,
         layout: eLayoutType.application,
-        requiredPolicy: 'BookStore.Books',
+        requiredPolicy: 'BookStore.Books || BookStore.Authors',
       },
       {
         path: '/books',
@@ -29,6 +29,13 @@ function configureRoutes(routes: RoutesService) {
         parentName: '::Menu:BookStore',
         layout: eLayoutType.application,
         requiredPolicy: 'BookStore.Books',
+      },
+      {
+        path: '/authors',
+        name: '::Menu:Authors',
+        parentName: '::Menu:BookStore',
+        layout: eLayoutType.application,
+        requiredPolicy: 'BookStore.Authors',
       },
     ]);
   };
