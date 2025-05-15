@@ -54,10 +54,10 @@ export class BookComponent implements OnInit {
 
   buildForm(): void {
     this.form = this.fb.group({
-      name: ['', [Validators.required]],
-      type: [null, [Validators.required]],
-      publishDate: [null, [Validators.required]],
-      price: [null, [Validators.required]],
+      name: [null, Validators.required],
+      type: [null, Validators.required],
+      publishDate: [null, Validators.required],
+      price: [null, Validators.required],
     });
   }
 
@@ -72,6 +72,13 @@ export class BookComponent implements OnInit {
     this.bookService.get(id).subscribe((book) => {
       this.selectedBook = book;
       this.buildForm();
+      // Patch the form with existing values
+      this.form.patchValue({
+        name: book.name,
+        type: book.type,
+        publishDate: new Date(book.publishDate),
+        price: book.price
+      });
       this.isModalOpen = true;
     });
   }
