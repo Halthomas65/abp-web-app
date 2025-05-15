@@ -8,7 +8,7 @@ public class Author : FullAuditedAggregateRoot<Guid>
 {
     public string Name { get; private set; }
     public DateTime BirthDate { get; set; }
-    public string shortBio { get; set; }
+    public string ShortBio { get; set; }
 
     private Author()
     {
@@ -20,7 +20,7 @@ public class Author : FullAuditedAggregateRoot<Guid>
     {
         SetName(name);
         BirthDate = birthDate;
-        this.shortBio = shortBio;
+        this.ShortBio = shortBio;
     }
 
     internal Author ChangeName(string name)
