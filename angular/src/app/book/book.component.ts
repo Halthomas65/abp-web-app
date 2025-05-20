@@ -1,6 +1,6 @@
 import { ListService, PagedResultDto } from '@abp/ng.core';
 import { Component, OnInit } from '@angular/core';
-import { BookService, BookDto, bookTypeOptions } from '@proxy/books';
+import { BookService, BookDto, bookTypeOptions, AuthorLookupDto } from '@proxy/books';
 import { CoreModule } from '@abp/ng.core';
 import { ThemeSharedModule } from '@abp/ng.theme.shared';
 import { CommonModule } from '@angular/common';
@@ -8,7 +8,8 @@ import { FormsModule, ReactiveFormsModule, FormGroup, FormBuilder, Validators } 
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { NgbDatepickerModule, NgbDateNativeAdapter, NgbDateAdapter, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { ConfirmationService, Confirmation } from '@abp/ng.theme.shared';
-
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-book',
@@ -37,6 +38,8 @@ export class BookComponent implements OnInit {
 
   form: FormGroup;
 
+  authors$: Observable<AuthorLookupDto[]>;
+
   bookTypes = bookTypeOptions;
 
   isModalOpen = false;
@@ -46,7 +49,11 @@ export class BookComponent implements OnInit {
     private readonly bookService: BookService,
     private fb: FormBuilder,
     private confirmation: ConfirmationService // inject the ConfirmationService
-  ) { }
+  ) {
+    this.authors$ = this.bookService.getAuthorLookup().pipe(
+      map((response) => response.items)
+    );
+  }
 
   ngOnInit(): void {
     this.initializeBookList();
@@ -54,10 +61,14 @@ export class BookComponent implements OnInit {
 
   buildForm(): void {
     this.form = this.fb.group({
-      name: [null, Validators.required],
-      type: [null, Validators.required],
-      publishDate: [null, Validators.required],
-      price: [null, Validators.required],
+      authorId: [this.selectedBook.authorId || null, Validators.required],
+      name: [this.selectedBook.name || null, Validators.required],
+      type: [this.selectedBook.type || null, Validators.required],
+      publishDate: [
+        this.selectedBook.publishDate ? new Date(this.selectedBook.publishDate) : null,
+        Validators.required,
+      ],
+      price: [this.selectedBook.price || null, Validators.required],
     });
   }
 
@@ -72,13 +83,6 @@ export class BookComponent implements OnInit {
     this.bookService.get(id).subscribe((book) => {
       this.selectedBook = book;
       this.buildForm();
-      // Patch the form with existing values
-      this.form.patchValue({
-        name: book.name,
-        type: book.type,
-        publishDate: new Date(book.publishDate),
-        price: book.price
-      });
       this.isModalOpen = true;
     });
   }
